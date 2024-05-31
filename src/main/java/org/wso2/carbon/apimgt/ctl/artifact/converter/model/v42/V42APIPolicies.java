@@ -23,36 +23,6 @@ public class V42APIPolicies extends Sequences {
 
     @Override
     public void exportSequences(String srcPath, String targetPath, String exportFormat) throws CTLArtifactConversionException {
-        String targetPoliciesDirectory = targetPath + File.separator + Constants.POLICIES_DIRECTORY;
-        String targetSequencesDirectory = targetPath + File.separator + Constants.SEQUENCES_DIRECTORY;
-
-
-        if (sequencesMap.size() > 0) {
-            CommonUtil.cleanDirectory(targetSequencesDirectory, false);
-            CommonUtil.cleanDirectory(targetPoliciesDirectory, true);
-            for (Map.Entry<String, JsonObject> entry : sequencesMap.entrySet()) {
-                String policyName = entry.getKey();
-                JsonObject policy = entry.getValue();
-                String policyVersion = CommonUtil.readElementAsString(policy, "version");
-                String policyFileName = policyName + "_" + policyVersion;
-
-                String policySpec = CommonUtil.readElementAsString(policy, "policySpec");
-                policy.remove("policySpec");
-
-                String policyFilePath = targetPoliciesDirectory + File.separator + policyFileName;
-                ConfigFileUtil.writeV42DTOFile(policyFilePath, exportFormat, Constants.POLICY_SPEC_TYPE, policy);
-
-                //write policy j2 file
-                String policyJ2FilePath = targetPoliciesDirectory + File.separator + policyFileName + ".j2";
-                try (BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
-                        new FileOutputStream(policyJ2FilePath), StandardCharsets.UTF_8))) {
-                    out.write(policySpec);
-                } catch (IOException e) {
-                    String msg = "Error while writing policy j2 file at: " + policyJ2FilePath;
-                    throw new CTLArtifactConversionException(msg, e);
-                }
-            }
-        }
 
         String srcMetaInfoDirectory = srcPath + File.separator + Constants.META_INFO_DIRECTORY;
         JsonObject v32apiMap = CommonUtil.convertMapToJsonObject(ConfigFileUtil.readConfigFileToMap(srcMetaInfoDirectory, Constants.API_CONFIG));

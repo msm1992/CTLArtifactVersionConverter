@@ -178,27 +178,25 @@ public class SequencesMappingUtil {
     public static void populateAPIPoliciesInAPI(JsonObject v32API, JsonObject v42API, Map<String, JsonObject> sequencesMap) {
         JsonObject apiPolicies = new JsonObject();
         for (String direction : Constants.SEQ_DIRECTIONS) {
-            populateAPIPoliciesInAPI(v32API, sequencesMap, direction, apiPolicies);
+            populateAPIPoliciesInAPI(v32API, direction, apiPolicies);
         }
         v42API.get("data").getAsJsonObject().add("apiPolicies", apiPolicies);
     }
 
-    private static void populateAPIPoliciesInAPI(JsonObject v32API, Map<String, JsonObject> sequencesMap,
-                                                       String direction, JsonObject apiPolicyConfig) {
+    private static void populateAPIPoliciesInAPI(JsonObject v32API,
+                                                 String direction, JsonObject apiPolicyConfig) {
+
         String sequenceName = v32API.get(direction + "Sequence") != null ?
                 v32API.get(direction + "Sequence").getAsString() : null;
         if (sequenceName != null && !sequenceName.isEmpty()) {
-            JsonObject sequence = sequencesMap.get(sequenceName);
-            if (sequence != null) {
-                JsonObject  seqConfig = new JsonObject();
-                seqConfig.addProperty("policyName", CommonUtil.readElementAsString(sequence, "name"));
-                seqConfig.addProperty("policyVersion", "v1");
-                seqConfig.add("parameters", new JsonObject());
+            JsonObject seqConfig = new JsonObject();
+            seqConfig.addProperty("policyName", sequenceName);
+            seqConfig.addProperty("policyVersion", "v1");
+            seqConfig.add("parameters", new JsonObject());
 
-                JsonArray seqArray = new JsonArray();
-                seqArray.add(seqConfig);
-                apiPolicyConfig.add(resolveDirectionToFlow(direction), seqArray);
-            }
+            JsonArray seqArray = new JsonArray();
+            seqArray.add(seqConfig);
+            apiPolicyConfig.add(resolveDirectionToFlow(direction), seqArray);
         }
     }
 
