@@ -100,4 +100,42 @@ public class ArtifactConvertApiServiceImpl implements ArtifactConvertApiService 
         }
         return paramsJson;
     }
+
+    public Response convertAPIArtifact(InputStream fileInputStream, Attachment fileDetail, String srcVersion,
+                                       String targetVersion, String exportFormat, String type, InputStream paramsInputStream, Attachment paramsDetail,
+                                       MessageContext messageContext) {
+        try {
+            log.info("Migrating API artifact from version " + srcVersion + " to " + targetVersion);
+            //Transfer input stream to APIArchive.zip inside tmp folder
+            File tempDirectory = CommonUtil.createTempDirectory();
+            String absolutePathToTempDirectory = tempDirectory.getAbsolutePath() + File.separator;
+            CommonUtil.transferFile(fileInputStream, Constants.API_JSON_NAME, absolutePathToTempDirectory);
+
+            //Copy extracted API artifact to a new location in tmp folder
+            String srcArtifactPath = absolutePathToTempDirectory;
+            File tempTargetDirectory = CommonUtil.createTempDirectory();
+            String targetArtifactPath = tempTargetDirectory.getAbsolutePath();
+
+            JsonObject paramsJson = readParamsYaml(paramsInputStream, paramsDetail);
+
+            if (Constants.API_PRIDUCT_TYPE.equals(type)) {
+                APIProductArtifactConversionManager productConversionManager = new APIProductArtifactConversionManager(
+                        srcVersion, targetVersion, srcArtifactPath, targetArtifactPath, exportFormat, paramsJson);
+                productConversionManager.convert();
+            } else {
+                APIJsonConversionManager apiConversionManager = new APIJsonConversionManager(srcVersion,
+                        targetVersion, srcArtifactPath, targetArtifactPath, exportFormat, paramsJson);
+                apiConversionManager.convert();
+            }
+
+            CommonUtil.archiveDirectory(tempTargetDirectory.getAbsolutePath());
+            FileUtils.deleteQuietly(new File(tempTargetDirectory.getAbsolutePath()));
+            File file = new File(tempTargetDirectory.getAbsolutePath() + Constants.ZIP_EXTENSION);
+            return Response.ok(file).header(RestApiConstants.HEADER_CONTENT_DISPOSITION,
+                    "attachment; filename=\"" + file.getName() + "\"").build();
+        } catch (CTLArtifactConversionException e) {
+            log.error("Error occurred while converting the artifact", e);
+            return Response.serverError().entity("Error occurred while converting the artifact").build();
+        }
+    }
 }

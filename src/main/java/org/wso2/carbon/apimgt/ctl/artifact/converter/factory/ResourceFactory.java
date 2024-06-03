@@ -1,5 +1,8 @@
 package org.wso2.carbon.apimgt.ctl.artifact.converter.factory;
 
+import org.wso2.carbon.apimgt.ctl.artifact.converter.model.APIJson;
+import org.wso2.carbon.apimgt.ctl.artifact.converter.model.v32.V32APIJson;
+import org.wso2.carbon.apimgt.ctl.artifact.converter.model.v42.V42APIJson;
 import org.wso2.carbon.apimgt.ctl.artifact.converter.util.Constants;
 import org.wso2.carbon.apimgt.ctl.artifact.converter.model.APIInfo;
 import org.wso2.carbon.apimgt.ctl.artifact.converter.model.Certificates;
@@ -40,6 +43,16 @@ public class ResourceFactory {
             return new V32APIInfo();
         } else if (version.equals(Constants.V420)) {
             return new V42APIInfo();
+        } else {
+            return null;
+        }
+    }
+
+    public static APIJson getAPIJsonRepresentation(String version) {
+        if (version.equals(Constants.V320)) {
+            return new V32APIJson();
+        } else if (version.equals(Constants.V420)) {
+            return new V42APIJson();
         } else {
             return null;
         }

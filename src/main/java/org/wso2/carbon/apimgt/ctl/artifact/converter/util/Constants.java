@@ -84,6 +84,7 @@ public class Constants {
     public static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
     public static final int TEMP_FILENAME_LENGTH = 5;
     public static final String UPLOAD_FILE_NAME = "APIArchive.zip";
+    public static final String API_JSON_NAME = "api.json";
     public static final char ZIP_FILE_SEPARATOR = '/';
     public static final char WIN_ZIP_FILE_SEPARATOR = '\\';
     public static final String PUBLISHED = "PUBLISHED";

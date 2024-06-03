@@ -67,6 +67,31 @@ public class ConfigFileUtil {
         return data;
     }
 
+    public static Map readAPIJsonToMap(String pathToConfigDirectory, String configFileName) throws CTLArtifactConversionException {
+        Map data = new LinkedHashMap();
+        File yamlConfig = new File(pathToConfigDirectory + File.separator + configFileName + Constants.YAML_EXTENSION);
+        File jsonConfig = new File(pathToConfigDirectory + File.separator + configFileName + Constants.JSON_EXTENSION);
+        try {
+            if (yamlConfig.exists()) {
+                InputStream inputStream = new FileInputStream(yamlConfig);
+                Yaml yaml = new Yaml();
+                data = yaml.load(inputStream);
+            } else if (jsonConfig.exists()) {
+                ObjectMapper mapper = new ObjectMapper();
+                data = mapper.readValue(jsonConfig, new TypeReference<LinkedHashMap>(){});
+            } else {
+                //todo error: no config file found
+            }
+        } catch (FileNotFoundException e) {
+            String msg = configFileName + " config file not found";
+            throw new CTLArtifactConversionException(msg, e);
+        } catch (IOException e) {
+            String msg = "Error while reading " + configFileName + ".json config file";
+            throw new CTLArtifactConversionException(msg, e);
+        }
+        return data;
+    }
+
     public static void writeV42DTOFile(String filePath, String format, String type, JsonElement dtoObj)
             throws CTLArtifactConversionException {
         JsonObject config = addTypeAndVersionToFile(type, Constants.APIM_420_VERSION, dtoObj);
