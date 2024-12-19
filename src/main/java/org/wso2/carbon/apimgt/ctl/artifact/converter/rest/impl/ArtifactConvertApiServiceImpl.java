@@ -14,6 +14,7 @@ import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 
 import org.wso2.carbon.apimgt.ctl.artifact.converter.exception.CTLArtifactConversionException;
+import org.wso2.carbon.apimgt.ctl.artifact.converter.impl.ApiJsonConverter;
 import org.wso2.carbon.apimgt.ctl.artifact.converter.util.CommonUtil;
 import org.wso2.carbon.apimgt.ctl.artifact.converter.util.Constants;
 import org.wso2.carbon.apimgt.rest.api.common.RestApiConstants;
@@ -23,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import javax.ws.rs.core.Response;
 
 public class ArtifactConvertApiServiceImpl implements ArtifactConvertApiService {
@@ -71,6 +73,63 @@ public class ArtifactConvertApiServiceImpl implements ArtifactConvertApiService 
             log.error("Error occurred while converting the artifact", e);
             return Response.serverError().entity("Error occurred while converting the artifact").build();
         }
+    }
+
+    @Override
+    public Response convertRESTApiArtifact(InputStream fileInputStream, String srcVersion, String targetVersion,
+           String type, InputStream paramsInputStream) {
+
+        try {
+            log.info("Migrating api.json from version " + srcVersion + " to " + targetVersion);
+            //Transfer input stream to APIArchive.zip inside tmp folder
+            File tempDirectory = CommonUtil.createTempDirectory();
+            String absolutePathToTempDirectory = tempDirectory.getAbsolutePath() + File.separator;
+            CommonUtil.transferFile(fileInputStream, Constants.UPLOAD_API_JSON, absolutePathToTempDirectory);
+
+
+            //Copy API artifact to a new location in tmp folder
+            String srcArtifactPath = absolutePathToTempDirectory + Constants.UPLOAD_API_JSON;
+            File srcAPIArtifactFile = new File(srcArtifactPath);
+            File tempTargetDirectory = CommonUtil.createTempDirectory();
+            String targetArtifactPath = tempTargetDirectory.getAbsolutePath() + File.separator + Constants.UPLOAD_API_JSON;
+            File targetAPIArtifactFile = new File(targetArtifactPath);
+
+            JsonObject paramsJson = readParamsFromStream(paramsInputStream);
+
+            ApiJsonConverter apiJsonConverter = new ApiJsonConverter(srcVersion, targetVersion, srcArtifactPath,
+                    targetArtifactPath, paramsJson, Constants.API_PRIDUCT_TYPE.equals(type));
+            apiJsonConverter.convert();
+
+            return Response.ok(targetAPIArtifactFile).header(RestApiConstants.HEADER_CONTENT_DISPOSITION,
+                    "attachment; filename=\"" + targetAPIArtifactFile.getName() + "\"").build();
+        } catch (CTLArtifactConversionException e) {
+            log.error("Error occurred while converting the artifact", e);
+            return Response.serverError().entity("Error occurred while converting the artifact").build();
+        } catch (IOException e) {
+            log.error("Error occurred while processing the json file", e);
+            return Response.serverError().entity("Error occurred while processing the json file").build();
+        } catch (ParseException e) {
+            return Response.serverError().entity("Error occurred while processing the lastUpdatedTime values").build();
+        }
+
+    }
+
+    private JsonObject readParamsFromStream (InputStream paramsInputStream) throws
+            CTLArtifactConversionException {
+        JsonObject paramsJson = new JsonObject();
+        try {
+            if (paramsInputStream != null) {
+                byte[] paramsBytes = IOUtils.toByteArray(paramsInputStream);
+                String paramsString = new String(paramsBytes, StandardCharsets.UTF_8);
+
+                if (!StringUtils.isEmpty(paramsString)) {
+                    paramsJson = new Gson().fromJson(paramsString, JsonObject.class);
+                }
+            }
+        } catch (IOException e) {
+            throw new CTLArtifactConversionException("Error occurred while reading the params file", e);
+        }
+        return paramsJson;
     }
 
     private JsonObject readParamsYaml (InputStream paramsInputStream, Attachment paramsDetail) throws

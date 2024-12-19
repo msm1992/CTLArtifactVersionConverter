@@ -84,6 +84,8 @@ public class Constants {
     public static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
     public static final int TEMP_FILENAME_LENGTH = 5;
     public static final String UPLOAD_FILE_NAME = "APIArchive.zip";
+    public static final String UPLOAD_API_JSON = "api.json";
+
     public static final char ZIP_FILE_SEPARATOR = '/';
     public static final char WIN_ZIP_FILE_SEPARATOR = '\\';
     public static final String PUBLISHED = "PUBLISHED";
@@ -94,5 +96,32 @@ public class Constants {
     public static final String ENDPOINT_CERT_TYPE = "ENDPOINT_CERTIFICATE";
     public static final String CLIENT_CERT_TYPE = "CLIENT_CERTIFICATE";
     public static final String DEFAULT_SECURITY = "default";
+
+    /**
+     * API JSON related properties
+     */
+
+    public static final String AJ_API_BUSINESS_OWNER = "businessOwner";
+    public static final String AJ_API_BUSINESS_OWNER_EMAIL = "businessOwnerEmail";
+    public static final String AJ_API_TECHNICAL_OWNER = "technicalOwner";
+    public static final String AJ_API_TECHNICAL_OWNER_EMAIL = "technicalOwnerEmail";
+    public static final String AJ_ADDITIONAL_PROPERTIES = "additionalProperties";
+    public static final String AJ_ADDITIONAL_PROPERTIES_MAP = "additionalPropertiesMap";
+    public static final String AJ_BUSINESS_INFORMATION = "businessInformation";
+    public static final String AJ_IS_REVISION = "isRevision";
+    public static final String AJ_REVISION_ID = "revisionId";
+    public static final String AJ_GATEWAY_VENDOR = "gatewayVendor";
+    public static final String AJ_IS_DEFAULT_VERSION = "isDefaultVersion";
+    public static final String AJ_GATEWAY_TYPE = "gatewayType";
+    public static final String AJ_ASYNC_TRANSPORT_PROTOCOLS = "asyncTransportProtocols";
+    public static final String AJ_kEY_MANAGERS = "keyManagers";
+    public static final String AJ_IS_MONETIZATION_ENABLED = "isMonetizationEnabled";
+    public static final String AJ_MONETIZATION_PROPERTIES = "monetizationProperties";
+    public static final String AJ_ENABLE_SCHEMA_VALIDATION = "enableSchemaValidation";
+    public static final String AJ_ACCESS_CONTROL = "accessControl";
+    public static final String AJ_POLICY_NAME = "policyName";
+    public static final String AJ_POLICY_ID = "policyId";
+    public static final String AJ_POLICY_VERSION = "policyVersion";
+    public static final String AJ_POLICY_PARAMS = "parameters";
 
 }
